@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fechas Landsat 5 (01 Nov 1994 - 31 Dic 1995)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --accent-blue: #38bdf8;
+            --accent-green: #4ade80;
+            --accent-purple: #c084fc;
+            --accent-cyan: #2dd4bf;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            padding: 2rem;
+            line-height: 1.5;
+        }
+
+        header {
+            max-width: 1400px;
+            margin: 0 auto 2.5rem auto;
+            text-align: center;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 1.5rem;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+        }
+
+        .meta-info {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--accent-cyan);
+            flex-wrap: wrap;
+        }
+
+        .meta-info div {
+            background: rgba(51, 65, 85, 0.4);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            border: 1px solid var(--card-border);
+        }
+
+        .section-title {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin: 3rem 0 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 24px;
+            border-radius: 4px;
+        }
+
+        .title-rgb::before { background: var(--accent-blue); }
+        .title-ndvi::before { background: var(--accent-green); }
+        .title-evi::before { background: var(--accent-purple); }
+        .title-ndwi::before { background: var(--accent-cyan); }
+
+        .grid-dates {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1.5rem;
+            max-width: 1400px;
+            margin: 0 auto 2.5rem auto;
+        }
+
+        .image-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .image-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-header {
+            padding: 0.75rem 1rem;
+            background: rgba(15, 23, 42, 0.7);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .date-badge {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
+
+        .img-wrapper {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: #020617;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-footer {
+            padding: 0.5rem 0.8rem;
+            background: rgba(15, 23, 42, 0.4);
+            border-top: 1px solid var(--card-border);
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            margin-top: auto;
+            text-align: center;
+            word-break: break-all;
+        }
+
+        .legend-bar {
+            max-width: 1400px;
+            margin: 0.5rem auto 1.5rem auto;
+            padding: 0.75rem 1rem;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+        }
+
+        .legend-gradient {
+            height: 14px;
+            border-radius: 4px;
+            margin-bottom: 0.4rem;
+        }
+
+        .legend-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        footer {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--card-border);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Fechas de Escenas Landsat 5 (01 Nov 1994 - 31 Dic 1995)</h1>
+        <p>Visualización individual de las 15 imágenes disponibles libres de nubes en la zona de estudio</p>
+        <div class="meta-info">
+            <div>Polígono: [-67.1107, -25.5532] a [-67.0810, -25.5309]</div>
+            <div>Total de Fechas: 15 Escenas</div>
+            <div>Colección: LANDSAT/LT05/C02/T1_L2</div>
+        </div>
+    </header>
+
+    <!-- 1. SECCIÓN RGB -->
+    <div class="section-title title-rgb">Color Real (RGB) por Fecha</div>
+    <div class="grid-dates">
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1994-11-27</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/rgb_1994-11-27.png" alt="RGB 1994-11-27">
+            </div>
+            <div class="card-footer">
+                ID: LT05_232078_19941127
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1994-12-13</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/rgb_1994-12-13.png" alt="RGB 1994-12-13">
+            </div>
+            <div class="card-footer">
+                ID: LT05_232078_19941213
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-03-19</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/rgb_1995-03-19.png" alt="RGB 1995-03-19">
+            </div>
+            <div class="card-footer">
+                ID: LT05_232078_19950319
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-04-04</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/rgb_1995-04-04.png" alt="RGB 1995-04-04">
+            </div>
+            <div class="card-footer">
+                ID: LT05_232078_19950404
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-05-06</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/rgb_1995-05-06.png" alt="RGB 1995-05-06">
+            </div>
+            <div class="card-footer">
+                ID: LT05_232078_19950506
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-05-22</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/rgb_1995-05-22.png" alt="RGB 1995-05-22">
+            </div>
+            <div class="card-footer">
+                ID: LT05_232078_19950522
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-06-07</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/rgb_1995-06-07.png" alt="RGB 1995-06-07">
+            </div>
+            <div class="card-footer">
+                ID: LT05_232078_19950607
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-06-23</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/rgb_1995-06-23.png" alt="RGB 1995-06-23">
+            </div>
+            <div class="card-footer">
+                ID: LT05_232078_19950623
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-07-09</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/rgb_1995-07-09.png" alt="RGB 1995-07-09">
+            </div>
+            <div class="card-footer">
+                ID: LT05_232078_19950709
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-07-25</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/rgb_1995-07-25.png" alt="RGB 1995-07-25">
+            </div>
+            <div class="card-footer">
+                ID: LT05_232078_19950725
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-08-26</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/rgb_1995-08-26.png" alt="RGB 1995-08-26">
+            </div>
+            <div class="card-footer">
+                ID: LT05_232078_19950826
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-09-11</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/rgb_1995-09-11.png" alt="RGB 1995-09-11">
+            </div>
+            <div class="card-footer">
+                ID: LT05_232078_19950911
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-09-27</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/rgb_1995-09-27.png" alt="RGB 1995-09-27">
+            </div>
+            <div class="card-footer">
+                ID: LT05_232078_19950927
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-10-29</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/rgb_1995-10-29.png" alt="RGB 1995-10-29">
+            </div>
+            <div class="card-footer">
+                ID: LT05_232078_19951029
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-12-16</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/rgb_1995-12-16.png" alt="RGB 1995-12-16">
+            </div>
+            <div class="card-footer">
+                ID: LT05_232078_19951216
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 2. SECCIÓN NDVI -->
+    <div class="section-title title-ndvi">Índice de Vegetación de Diferencia Normalizada (NDVI)</div>
+    <div class="legend-bar">
+        <div class="legend-gradient" style="background: linear-gradient(to right, #d7191c, #fdae61, #ffffbf, #a6d96a, #1a9641, #006837);"></div>
+        <div class="legend-labels">
+            <span>Suelo Desnudo / Agua (-0.1)</span>
+            <span>Vegetación Baja (0.3)</span>
+            <span>Vegetación Densa (0.7+)</span>
+        </div>
+    </div>
+    <div class="grid-dates">
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1994-11-27</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndvi_1994-11-27.png" alt="NDVI 1994-11-27">
+            </div>
+            <div class="card-footer">
+                NDVI | 1994-11-27
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1994-12-13</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndvi_1994-12-13.png" alt="NDVI 1994-12-13">
+            </div>
+            <div class="card-footer">
+                NDVI | 1994-12-13
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-03-19</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndvi_1995-03-19.png" alt="NDVI 1995-03-19">
+            </div>
+            <div class="card-footer">
+                NDVI | 1995-03-19
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-04-04</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndvi_1995-04-04.png" alt="NDVI 1995-04-04">
+            </div>
+            <div class="card-footer">
+                NDVI | 1995-04-04
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-05-06</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndvi_1995-05-06.png" alt="NDVI 1995-05-06">
+            </div>
+            <div class="card-footer">
+                NDVI | 1995-05-06
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-05-22</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndvi_1995-05-22.png" alt="NDVI 1995-05-22">
+            </div>
+            <div class="card-footer">
+                NDVI | 1995-05-22
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-06-07</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndvi_1995-06-07.png" alt="NDVI 1995-06-07">
+            </div>
+            <div class="card-footer">
+                NDVI | 1995-06-07
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-06-23</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndvi_1995-06-23.png" alt="NDVI 1995-06-23">
+            </div>
+            <div class="card-footer">
+                NDVI | 1995-06-23
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-07-09</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndvi_1995-07-09.png" alt="NDVI 1995-07-09">
+            </div>
+            <div class="card-footer">
+                NDVI | 1995-07-09
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-07-25</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndvi_1995-07-25.png" alt="NDVI 1995-07-25">
+            </div>
+            <div class="card-footer">
+                NDVI | 1995-07-25
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-08-26</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndvi_1995-08-26.png" alt="NDVI 1995-08-26">
+            </div>
+            <div class="card-footer">
+                NDVI | 1995-08-26
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-09-11</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndvi_1995-09-11.png" alt="NDVI 1995-09-11">
+            </div>
+            <div class="card-footer">
+                NDVI | 1995-09-11
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-09-27</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndvi_1995-09-27.png" alt="NDVI 1995-09-27">
+            </div>
+            <div class="card-footer">
+                NDVI | 1995-09-27
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-10-29</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndvi_1995-10-29.png" alt="NDVI 1995-10-29">
+            </div>
+            <div class="card-footer">
+                NDVI | 1995-10-29
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-12-16</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndvi_1995-12-16.png" alt="NDVI 1995-12-16">
+            </div>
+            <div class="card-footer">
+                NDVI | 1995-12-16
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 3. SECCIÓN EVI -->
+    <div class="section-title title-evi">Índice de Vegetación Mejorado (EVI)</div>
+    <div class="legend-bar">
+        <div class="legend-gradient" style="background: linear-gradient(to right, #d7191c, #fdae61, #ffffbf, #a6d96a, #1a9641, #006837);"></div>
+        <div class="legend-labels">
+            <span>Baja Biomasa (-0.05)</span>
+            <span>Vegetación Moderada (0.25)</span>
+            <span>Vegetación Vigorosa (0.60+)</span>
+        </div>
+    </div>
+    <div class="grid-dates">
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1994-11-27</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/evi_1994-11-27.png" alt="EVI 1994-11-27">
+            </div>
+            <div class="card-footer">
+                EVI | 1994-11-27
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1994-12-13</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/evi_1994-12-13.png" alt="EVI 1994-12-13">
+            </div>
+            <div class="card-footer">
+                EVI | 1994-12-13
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-03-19</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/evi_1995-03-19.png" alt="EVI 1995-03-19">
+            </div>
+            <div class="card-footer">
+                EVI | 1995-03-19
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-04-04</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/evi_1995-04-04.png" alt="EVI 1995-04-04">
+            </div>
+            <div class="card-footer">
+                EVI | 1995-04-04
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-05-06</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/evi_1995-05-06.png" alt="EVI 1995-05-06">
+            </div>
+            <div class="card-footer">
+                EVI | 1995-05-06
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-05-22</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/evi_1995-05-22.png" alt="EVI 1995-05-22">
+            </div>
+            <div class="card-footer">
+                EVI | 1995-05-22
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-06-07</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/evi_1995-06-07.png" alt="EVI 1995-06-07">
+            </div>
+            <div class="card-footer">
+                EVI | 1995-06-07
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-06-23</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/evi_1995-06-23.png" alt="EVI 1995-06-23">
+            </div>
+            <div class="card-footer">
+                EVI | 1995-06-23
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-07-09</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/evi_1995-07-09.png" alt="EVI 1995-07-09">
+            </div>
+            <div class="card-footer">
+                EVI | 1995-07-09
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-07-25</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/evi_1995-07-25.png" alt="EVI 1995-07-25">
+            </div>
+            <div class="card-footer">
+                EVI | 1995-07-25
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-08-26</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/evi_1995-08-26.png" alt="EVI 1995-08-26">
+            </div>
+            <div class="card-footer">
+                EVI | 1995-08-26
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-09-11</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/evi_1995-09-11.png" alt="EVI 1995-09-11">
+            </div>
+            <div class="card-footer">
+                EVI | 1995-09-11
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-09-27</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/evi_1995-09-27.png" alt="EVI 1995-09-27">
+            </div>
+            <div class="card-footer">
+                EVI | 1995-09-27
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-10-29</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/evi_1995-10-29.png" alt="EVI 1995-10-29">
+            </div>
+            <div class="card-footer">
+                EVI | 1995-10-29
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-12-16</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/evi_1995-12-16.png" alt="EVI 1995-12-16">
+            </div>
+            <div class="card-footer">
+                EVI | 1995-12-16
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 4. SECCIÓN NDWI -->
+    <div class="section-title title-ndwi">Índice de Agua de Diferencia Normalizada (NDWI)</div>
+    <div class="legend-bar">
+        <div class="legend-gradient" style="background: linear-gradient(to right, #a6611a, #dfc27d, #f5f5f5, #80bfac, #018571, #003c30);"></div>
+        <div class="legend-labels">
+            <span>Zona Seca / Suelo (-0.4)</span>
+            <span>Humedad Moderada (0.0)</span>
+            <span>Agua / Alta Humedad (0.3+)</span>
+        </div>
+    </div>
+    <div class="grid-dates">
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1994-11-27</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndwi_1994-11-27.png" alt="NDWI 1994-11-27">
+            </div>
+            <div class="card-footer">
+                NDWI | 1994-11-27
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1994-12-13</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndwi_1994-12-13.png" alt="NDWI 1994-12-13">
+            </div>
+            <div class="card-footer">
+                NDWI | 1994-12-13
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-03-19</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndwi_1995-03-19.png" alt="NDWI 1995-03-19">
+            </div>
+            <div class="card-footer">
+                NDWI | 1995-03-19
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-04-04</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndwi_1995-04-04.png" alt="NDWI 1995-04-04">
+            </div>
+            <div class="card-footer">
+                NDWI | 1995-04-04
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-05-06</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndwi_1995-05-06.png" alt="NDWI 1995-05-06">
+            </div>
+            <div class="card-footer">
+                NDWI | 1995-05-06
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-05-22</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndwi_1995-05-22.png" alt="NDWI 1995-05-22">
+            </div>
+            <div class="card-footer">
+                NDWI | 1995-05-22
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-06-07</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndwi_1995-06-07.png" alt="NDWI 1995-06-07">
+            </div>
+            <div class="card-footer">
+                NDWI | 1995-06-07
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-06-23</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndwi_1995-06-23.png" alt="NDWI 1995-06-23">
+            </div>
+            <div class="card-footer">
+                NDWI | 1995-06-23
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-07-09</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndwi_1995-07-09.png" alt="NDWI 1995-07-09">
+            </div>
+            <div class="card-footer">
+                NDWI | 1995-07-09
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-07-25</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndwi_1995-07-25.png" alt="NDWI 1995-07-25">
+            </div>
+            <div class="card-footer">
+                NDWI | 1995-07-25
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-08-26</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndwi_1995-08-26.png" alt="NDWI 1995-08-26">
+            </div>
+            <div class="card-footer">
+                NDWI | 1995-08-26
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-09-11</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndwi_1995-09-11.png" alt="NDWI 1995-09-11">
+            </div>
+            <div class="card-footer">
+                NDWI | 1995-09-11
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-09-27</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndwi_1995-09-27.png" alt="NDWI 1995-09-27">
+            </div>
+            <div class="card-footer">
+                NDWI | 1995-09-27
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-10-29</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndwi_1995-10-29.png" alt="NDWI 1995-10-29">
+            </div>
+            <div class="card-footer">
+                NDWI | 1995-10-29
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="card-header">
+                <span class="date-badge">📅 1995-12-16</span>
+            </div>
+            <div class="img-wrapper">
+                <img src="landsat_dates_1994_1995_images/ndwi_1995-12-16.png" alt="NDWI 1995-12-16">
+            </div>
+            <div class="card-footer">
+                NDWI | 1995-12-16
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>Generado automáticamente mediante Google Earth Engine API & Python</p>
+    </footer>
+
+</body>
+</html>

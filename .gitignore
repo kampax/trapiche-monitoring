@@ -1,0 +1,7 @@
+.DS_Store
+Thumbs.db
+desktop.ini
+.Rhistory
+.Rproj.user/
+__pycache__/
+*.pyc
