@@ -2,7 +2,7 @@
 
 Monitoreo satelital multi-sensor (Landsat 1986–2026, Sentinel-2 2016–2026, MODIS 2000–2026) del efecto de la construcción de una represa y de acciones de restauración activa sobre los índices de vegetación y humedad de una vega altoandina (humedal de altura) ubicada en la cuenca del Salar del Hombre Muerto, Puna de Catamarca/Salta, Argentina.
 
-Este repositorio contiene el código, los datos tabulares extraídos de Google Earth Engine y las figuras utilizadas en el artículo científico asociado. **Los scripts, datos y figuras aquí publicados son los que efectivamente se usaron para producir los resultados del manuscrito**; se ofrecen para transparencia y reproducibilidad del análisis.
+Este repositorio contiene el código, los datos tabulares extraídos de Google Earth Engine y las figuras utilizadas en el artículo científico asociado. **Los scripts, datos y figuras aquí publicados son los que se usaron para producir los resultados del manuscrito**; se ofrecen para transparencia y reproducibilidad del análisis.
 
 <p align="center">
   <img src="figures/Figure1.png" width="800" alt="Área de estudio y tratamientos de restauración">
@@ -12,7 +12,9 @@ Este repositorio contiene el código, los datos tabulares extraídos de Google E
 
 ## Contexto del estudio
 
-La vega de Trapiche fue afectada por la construcción de una represa hacia mediados de los años 1990, que alteró el régimen hídrico de un sector del humedal. A partir de 2020–2021 se implementaron acciones de restauración activa (plantación, obras de re-humectación) en parte del sector degradado. El diseño de monitoreo compara cuatro unidades de tratamiento a lo largo del tiempo:
+La vega de Trapiche fue afectada por la construcción de una represa hacia mediados de los años 1990, a fines de 1994 que alteró el régimen hídrico de un sector del humedal. A partir de 2020–2021 se implementaron acciones de restauración activa (restablecimiento parcial del flujo hidrico, transplantes de champas y exclusión de ganado) en parte del sector degradado. En este trabajo monitoreamos el efecto de estas intervenciones sobre los índices de vegetación y humedad de la vega.
+
+El diseño de monitoreo compara cuatro unidades de tratamiento a lo largo del tiempo:
 
 - **Sector restaurado**: área degradada por la represa que recibió intervención de restauración.
 - **Sector no restaurado**: área degradada por la represa que no fue intervenida (control de degradación).
@@ -29,7 +31,7 @@ Analisis/
 ├── README.md
 ├── data/                                  # Series extraídas de Google Earth Engine (una fila = un píxel en una fecha)
 │   ├── datos_trapiche_landsat.csv         # Landsat 5/7/8/9, 1986-2026, escala 30 m
-│   ├── datos_trapiche_sentinel.csv        # Sentinel-2 SR, 2016-2026, escala 10 m
+│   ├── datos_trapiche_sentinel.csv        # Sentinel-2 SR, 2019-2026, escala 10 m
 │   └── datos_trapiche_modis.csv           # MODIS MOD09GQ/MYD09GQ, 2000-2026, escala 250 m
 │
 ├── scripts/
@@ -44,21 +46,19 @@ Analisis/
 │   │   ├── generate_sentinel_figures.R    # Figuras 5 y 6 (series mensuales y emmeans Sentinel-2)
 │   │   ├── generate_figure7_kde.py        # Figura 7 (densidad fenológica de referencia)
 │   │   ├── generate_restoration_photos_figure.R  # Figura S3 (panel fotográfico de restauración)
-│   │   └── ndvi_vega_trapiche.py          # Mapas NDVI comparados por período (composiciones Landsat)
+│   │   └── ndvi_vega_trapiche.py          # Mapas NDVI comparados por período (usando Landsat)
 │   │
 │   └── 3-analysis scripts/
-│       └── Analisis Sentinel 2.R          # Modelos lineales mixtos, ANOVA, emmeans/CLD y tablas del manuscrito
+│       └── Analisis Sentinel 2.R          # Modelos lineales mixtos, ANOVA, emmeans/CLD y tablas 
 │
 ├── figures/                               # Figuras finales (PNG) usadas en el manuscrito
 │
-└── visualizacion escenas/                 # Exploración interactiva de escenas Landsat individuales (HTML)
+└── visualizacion escenas/                 # Exploración interactiva de escenas Landsat
     ├── download_landsat_dates_1994_1995.py
     ├── landsat_dates_1994_1995_dashboard.html
     ├── landsat_seasons_dashboard.html
     └── .../*_images/                      # Composiciones RGB, NDVI, EVI y NDWI por escena/temporada
 ```
-
-> Nota: los scripts en `2-graphics scripts/` y `3-analysis scripts/` originalmente resolvían la raíz del proyecto asumiendo que vivían un solo nivel bajo `Analisis/` (con carpetas `Scripts/` y `Figures/` en mayúscula), en lugar de dos niveles (`scripts/2-graphics scripts/`, `scripts/3-analysis scripts/`, con `data/` y `figures/` en minúscula), que es la estructura real de esta carpeta. Ese desajuste — heredado de haber copiado los scripts desde otra organización de carpetas — ya fue corregido en este repositorio: todos resuelven la raíz del proyecto de forma robusta a partir de la ubicación real del script. La única dependencia externa pendiente es la carpeta `anexosfiguras/` (fotografías originales de la restauración) que usa `generate_restoration_photos_figure.R`: no forma parte de este repositorio porque las figuras que genera (`Figure_Restauracion_Paneles.png`, `FigureS3.png`) ya están incluidas en `figures/`; para volver a generarlas hay que crear esa carpeta en la raíz y copiar allí las 4 fotos originales.
 
 ## Datos (`data/`)
 
@@ -74,7 +74,7 @@ Cada archivo CSV contiene una fila por combinación de punto de muestreo (píxel
 
 ## Scripts de descarga (`scripts/1-download scripts/`)
 
-Scripts en Python que usan la API de Google Earth Engine (`earthengine-api` + `geemap`) para extraer, en los puntos de muestreo definidos como assets de Earth Engine (`users/CarlosNavarro/Trapiche_NDVI/...`), las bandas de reflectancia superficial y calcular los índices espectrales:
+Scripts en Python que usan la API de Google Earth Engine (`earthengine-api` + `geemap`) para extraer, en los puntos de muestreo definidos como assets de Earth Engine consistentes en una grilla de pixeles para cada uno de los sensores (`users/CarlosNavarro/Trapiche_NDVI/...`), las bandas de reflectancia superficial y calcular los índices espectrales:
 
 - **NDVI** = (NIR − Red) / (NIR + Red)
 - **EVI** = 2.5 · (NIR − Red) / (NIR + 6·Red − 7.5·Blue + 1)
@@ -97,7 +97,7 @@ Cada script aplica una máscara de calidad específica del sensor (`QA_PIXEL`/`Q
 
 ## Script de análisis estadístico (`scripts/3-analysis scripts/Analisis Sentinel 2.R`)
 
-Contiene el análisis estadístico principal del manuscrito sobre los datos Sentinel-2 (mayor densidad temporal), estructurado en:
+Contiene el análisis estadístico principal del manuscrito sobre los datos Sentinel-2 (mayor densidad temporal y resolución espacial), estructurado en:
 
 1. **Limpieza y colapso de datos**: filtrado desde julio de 2024, exclusión de valores de NDVI/EVI fuera de rango físico [-1, 1] y de píxeles con nieve, y colapso a un valor por píxel-fecha-tratamiento (mediana).
 2. **Control de calidad de escenas**: se exigen escenas con ≥80 % de cobertura de píxeles válidos en las 4 unidades de tratamiento, y se descartan fechas cuyo EVI cae anómalamente por debajo de la mediana móvil local (residuo < −0.045), como filtro adicional de nubes/sombras no capturadas por la máscara SCL.
@@ -143,6 +143,17 @@ El índice NDWI se excluye deliberadamente de este análisis por estar orientado
 
 Herramientas complementarias (no forman parte de las figuras del manuscrito) para inspeccionar visualmente escenas Landsat individuales: `download_landsat_dates_1994_1995.py` descarga composiciones RGB, NDVI, EVI y NDWI por fecha/temporada desde Earth Engine, y los archivos `.html` son tableros interactivos generados a partir de esas imágenes para revisión de calidad de escenas (nubes, sombras, nieve) durante el control de calidad de los datos.
 
+GitHub no renderiza archivos `.html`, la forma de ver estos tableros es:
+
+1. Clonar el repositorio (`git clone https://github.com/kampax/trapiche-monitoring.git`) o descargarlo como ZIP (`Code → Download ZIP`).
+2. Abrir el archivo `.html` deseado directamente con doble clic, o arrastrarlo a una pestaña del navegador:
+   - `visualizacion escenas/landsat_dates_1994_1995_dashboard.html`
+   - `visualizacion escenas/landsat_seasons_dashboard.html`
+
+Ambos son autocontenidos (HTML + imágenes referenciadas en `landsat_dates_1994_1995_images/` y `landsat_seasons_images/` dentro de la misma carpeta), así que abren correctamente en local sin necesidad de servidor.
+
+
+
 ## Cómo reproducir
 
 **Descarga de datos (Python + Google Earth Engine):**
@@ -155,7 +166,7 @@ python "scripts/1-download scripts/trapiche_sentinel_download.py"
 python "scripts/1-download scripts/trapiche_modis_download.py"
 ```
 
-Requiere acceso a los assets de Earth Engine `users/CarlosNavarro/Trapiche_NDVI/*` (puntos de muestreo geolocalizados por sector de tratamiento).
+Requiere acceso a los assets de Earth Engine `users/CarlosNavarro/Trapiche_NDVI/*` (pixeles de muestreo geolocalizados por sector de tratamiento).
 
 **Figuras (R):**
 
@@ -203,15 +214,8 @@ Rscript "scripts/3-analysis scripts/Analisis Sentinel 2.R"
 - Lenth, R. V. (2016). Least-squares means: The R package lsmeans. *Journal of Statistical Software*, 69(1), 1–33. https://doi.org/10.18637/jss.v069.i01 (base del paquete `emmeans`)
 - Gorelick, N., Hancher, M., Dixon, M., Ilyushchenko, S., Thau, D., & Moore, R. (2017). Google Earth Engine: Planetary-scale geospatial analysis for everyone. *Remote Sensing of Environment*, 202, 18–27. https://doi.org/10.1016/j.rse.2017.06.031
 
-## Autoría
-
-Análisis realizado por Carlos Javier Navarro Navarro (Charly) — datos extraídos vía Google Earth Engine, procesamiento en Python y R.
-
 ## Licencia
 
-Este repositorio usa licenciamiento dual, práctica habitual en proyectos científicos que combinan código y datos de investigación:
+- **Código** (`scripts/`, `visualizacion escenas/`): licencia [MIT](LICENSE).
+- **Datos y figuras** (`data/*.csv`, `figures/*.png`): licencia [Creative Commons Atribución 4.0 Internacional (CC BY 4.0)](DATA_LICENSE).
 
-- **Código** (`scripts/`, `visualizacion escenas/`): licencia [MIT](LICENSE). Permite reutilizar, modificar y redistribuir los scripts libremente, incluso con fines comerciales, manteniendo el aviso de copyright.
-- **Datos y figuras** (`data/*.csv`, `figures/*.png`): licencia [Creative Commons Atribución 4.0 Internacional (CC BY 4.0)](DATA_LICENSE). Permite compartir y adaptar los datos siempre que se cite la fuente (el artículo científico y/o este repositorio).
-
-Esta combinación es la recomendada por la mayoría de las revistas y por Zenodo/Figshare para acompañar publicaciones con datos abiertos: separa claramente el software (donde MIT es el estándar de facto) de los datos observacionales (donde CC BY es el estándar para exigir atribución sin restringir el reuso). Si la revista de destino exige una licencia específica de datos (p. ej. CC0 para algunos repositorios de datos primarios), ajustar `DATA_LICENSE` en consecuencia antes de la publicación final.

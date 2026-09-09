@@ -1,0 +1,10 @@
+# Dependencias de los scripts Python del repositorio
+# (scripts/1-download scripts, scripts/2-graphics scripts, visualizacion escenas)
+
+earthengine-api
+geemap
+pandas
+numpy
+matplotlib
+seaborn
+scipy

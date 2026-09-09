@@ -33,7 +33,8 @@ project_root <- function() {
 }
 
 root_dir <- project_root()
-source(file.path(root_dir, "scripts", "2-graphics scripts", "figure_style.R"))
+style_file <- file.path(root_dir, "scripts", "2-graphics scripts", "figure_style.R")
+eval(parse(file = style_file, encoding = "UTF-8"))
 input_file <- file.path(root_dir, "data", "datos_trapiche_sentinel.csv")
 output_dir <- file.path(root_dir, "figures")
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
@@ -100,12 +101,36 @@ make_figure5 <- function(separate_controls = FALSE) {
                       labels = c("a) NDVI", "b) EVI", "c) LSWI"))
     )
 
-  ggplot(
+  p <- ggplot(
     monthly_long,
     aes(Month, Valor, color = Tratamiento, group = Tratamiento)
-  ) +
-    geom_line(linewidth = 0.9, alpha = 0.9) +
-    geom_point(size = 1.2, alpha = 0.8) +
+  )
+
+  if (separate_controls) {
+    p <- p +
+      geom_line(
+        data = filter(monthly_long, Tratamiento != "Restaurado"),
+        linewidth = 0.65, alpha = 0.55
+      ) +
+      geom_point(
+        data = filter(monthly_long, Tratamiento != "Restaurado"),
+        size = 1.0, alpha = 0.55
+      ) +
+      geom_line(
+        data = filter(monthly_long, Tratamiento == "Restaurado"),
+        linewidth = 1.1, alpha = 1
+      ) +
+      geom_point(
+        data = filter(monthly_long, Tratamiento == "Restaurado"),
+        size = 1.4, alpha = 1
+      )
+  } else {
+    p <- p +
+      geom_line(linewidth = 0.9, alpha = 0.9) +
+      geom_point(size = 1.2, alpha = 0.8)
+  }
+
+  p +
     facet_wrap(~Indice, ncol = 1, scales = "free_y") +
     scale_x_date(date_breaks = "1 year", date_minor_breaks = "3 months",
                  date_labels = "%Y", expand = expansion(mult = c(0.01, 0.02))) +
