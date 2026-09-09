@@ -1,10 +1,11 @@
 # Dependencias de los scripts Python del repositorio
 # (scripts/1-download scripts, scripts/2-graphics scripts, visualizacion escenas)
+# Versiones fijadas según el entorno conda "gee_env" usado para producir los resultados.
 
-earthengine-api
-geemap
-pandas
-numpy
-matplotlib
-seaborn
-scipy
+earthengine-api==1.7.38
+geemap==0.38.3
+pandas==2.3.3
+numpy==2.3.4
+matplotlib==3.10.6
+seaborn==0.13.2
+scipy==1.17.0
