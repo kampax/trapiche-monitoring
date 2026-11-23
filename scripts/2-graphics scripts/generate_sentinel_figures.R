@@ -152,9 +152,9 @@ figure5 <- make_figure5(separate_controls = FALSE)
 figure5_separate <- make_figure5(separate_controls = TRUE)
 
 ggsave(file.path(output_dir, "Figure5.png"), figure5,
-       width = FIGURE_WIDTH, height = 7, dpi = 320, bg = "white")
+       width = FIGURE_WIDTH, height = 7, dpi = 450, bg = "white")
 ggsave(file.path(output_dir, "Figure5_controles_separados.png"), figure5_separate,
-       width = FIGURE_WIDTH, height = 7, dpi = 320, bg = "white")
+       width = FIGURE_WIDTH, height = 7, dpi = 450, bg = "white")
 
 # -----------------------------------------------------------------------------
 # Figura 6: resultados del modelo mixto (emmeans, IC 95 % y CLD)
@@ -305,9 +305,9 @@ figure6_b <- add_figure6_annotation(
 )
 
 ggsave(file.path(output_dir, "Figure6_a.png"), figure6_a,
-       width = FIGURE_WIDTH, height = 7.4, dpi = 320, bg = "white")
+       width = FIGURE_WIDTH, height = 7.4, dpi = 450, bg = "white")
 
 ggsave(file.path(output_dir, "Figure6_b.png"), figure6_b,
-       width = FIGURE_WIDTH, height = 7.4, dpi = 320, bg = "white")
+       width = FIGURE_WIDTH, height = 7.4, dpi = 450, bg = "white")
 
 message("Creadas: Figure5.png, Figure5_controles_separados.png, Figure6_a.png y Figure6_b.png")

@@ -1,6 +1,6 @@
 # Restauración de la vega de Trapiche (Salar del Hombre Muerto, Puna argentina)
 
-Monitoreo satelital multi-sensor (Landsat 1986–2026, Sentinel-2 2016–2026, MODIS 2000–2026) del efecto de la construcción de una represa y de acciones de restauración activa sobre los índices de vegetación y humedad de una vega altoandina (humedal de altura) ubicada en la cuenca del Salar del Hombre Muerto, Puna de Catamarca/Salta, Argentina.
+Monitoreo satelital multi-sensor (Landsat 1986–2026, Sentinel-2 2016–2026, MODIS 2000–2026) y caracterización climática complementaria (precipitación y temperatura del aire a 2 m de ERA5-Land, 1986–2026) del efecto de la construcción de una represa y de acciones de restauración activa sobre los índices de vegetación y humedad de una vega altoandina (humedal de altura) ubicada en la cuenca del Salar del Hombre Muerto, Puna de Catamarca/Salta, Argentina.
 
 Este repositorio contiene el código, los datos tabulares extraídos de Google Earth Engine y las figuras utilizadas en el artículo científico asociado. **Los scripts, datos y figuras aquí publicados son los que se usaron para producir los resultados del manuscrito**; se ofrecen para transparencia y reproducibilidad del análisis.
 
@@ -31,20 +31,26 @@ Analisis/
 ├── README.md
 ├── data/                                  # Series extraídas de Google Earth Engine (una fila = un píxel en una fecha)
 │   ├── datos_trapiche_landsat.csv         # Landsat 5/7/8/9, 1986-2026, escala 30 m
-│   ├── datos_trapiche_sentinel.csv        # Sentinel-2 SR, 2019-2026, escala 10 m
-│   └── datos_trapiche_modis.csv           # MODIS MOD09GQ/MYD09GQ, 2000-2026, escala 250 m
+│   ├── datos_trapiche_sentinel.csv        # Sentinel-2 SR, 2016-2026, escala 10 m
+│   ├── datos_trapiche_modis.csv           # MODIS MOD09GQ/MYD09GQ, 2000-2026, escala 250 m
+│   ├── datos_trapiche_era5_monthly.csv    # ERA5-Land mensual (precipitación y temperatura 2 m), 1985-2026
+│   ├── datos_trapiche_era5_hydroyear.csv  # ERA5-Land por año hidrológico (jul-jun), 1986-2026
+│   ├── merged_landsat_era5_hydroyear.csv  # Serie anual combinada Landsat + ERA5-Land
+│   └── era5_ndvi_correlations.csv         # Correlaciones ERA5-Land vs. índices Landsat
 │
 ├── scripts/
 │   ├── 1-download scripts/                # Descarga y actualización de datos desde Earth Engine (Python)
 │   │   ├── trapiche_landsat_download.py
 │   │   ├── trapiche_sentinel_download.py
-│   │   └── trapiche_modis_download.py
+│   │   ├── trapiche_modis_download.py
+│   │   └── trapiche_era5_download.py      # Descarga precipitación y temperatura ERA5-Land
 │   │
 │   ├── 2-graphics scripts/                # Generación de las figuras del manuscrito (R y Python)
 │   │   ├── figure_style.R                 # Paleta y tema gráfico compartidos
-│   │   ├── generate_landsat_figures.R     # Figuras 2, 3 y 4 (series anuales Landsat)
-│   │   ├── generate_sentinel_figures.R    # Figuras 5 y 6 (series mensuales y emmeans Sentinel-2)
-│   │   ├── generate_figure7_kde.py        # Figura 7 (densidad fenológica de referencia)
+│   │   ├── generate_landsat_figures.R     # Figuras 2, 3 y 4 (series anuales Landsat, 450 DPI)
+│   │   ├── generate_sentinel_figures.R    # Figuras 5 y 6 (series mensuales y emmeans Sentinel-2, 450 DPI)
+│   │   ├── generate_figure7_kde.py        # Figura 7 (densidad fenológica de referencia, 450 DPI)
+│   │   ├── era5_analysis_and_figures.py   # Figura A4 (precipitación y temperatura ERA5-Land + EVI Landsat)
 │   │   ├── generate_restoration_photos_figure.R  # Figura S3 (panel fotográfico de restauración)
 │   │   └── ndvi_vega_trapiche.py          # Mapas NDVI comparados por período (usando Landsat)
 │   │
@@ -69,6 +75,10 @@ Cada archivo CSV contiene una fila por combinación de punto de muestreo (píxel
 | `datos_trapiche_landsat.csv` | Landsat 5 TM, 7 ETM+, 8/9 OLI (Collection 2, Nivel 2) | 1986–2026 | 30 m | 74 | `Point_ID`, `tratamiento`, `Year`, `Date`, `NDVI`, `EVI`, `SAVI`, `LST`, `NDWI`, `LSWI`, `Snow` |
 | `datos_trapiche_sentinel.csv` | Sentinel-2 (S2_SR_HARMONIZED) | 2016–2026 | 10 m | 334 | `Point_ID`, `tratamiento`, `Year`, `Date`, `NDVI`, `EVI`, `SAVI`, `NDWI`, `LSWI`, `Snow` |
 | `datos_trapiche_modis.csv` | MODIS Terra/Aqua (MOD09GQ/MYD09GQ) | 2000–2026 | 250 m | 2 | `Point_ID`, `tratamiento`, `Year`, `Date`, `Red`, `NIR`, `NDVI`, `SAVI` |
+| `datos_trapiche_era5_monthly.csv` | ERA5-Land (`ECMWF/ERA5_LAND/MONTHLY_AGGR`) | 1985–2026 | ~11 km | Sitio + cuenca (buffer 15 km) | `Date`, `Year`, `Month`, `Precip_site_mm`, `Precip_basin_mm`, `Temp_site_C`, `Temp_basin_C`, `HydroYear` |
+| `datos_trapiche_era5_hydroyear.csv` | ERA5-Land agregado por año hidrológico (jul–jun) | 1986–2026 | ~11 km | Sitio + cuenca | `HydroYear`, `n_months`, `Precip_site_mm`, `Precip_basin_mm`, `Temp_site_C`, `Temp_basin_C`, anomalías y z-scores |
+
+Adicionalmente, el análisis climático genera `merged_landsat_era5_hydroyear.csv` (tabla anual combinada de índices Landsat y variables ERA5-Land) y `era5_ndvi_correlations.csv` (correlaciones de Spearman y Pearson entre precipitación e índices espectrales por período y tratamiento).
 
 `tratamiento` toma los valores `control 1`, `control 2`, `sector restaurado` y `sector no restaurado`. `Snow` indica píxeles marcados como nieve/hielo por la máscara de calidad del sensor (excluidos de los análisis).
 
@@ -85,6 +95,8 @@ Scripts en Python que usan la API de Google Earth Engine (`earthengine-api` + `g
 
 Cada script aplica una máscara de calidad específica del sensor (`QA_PIXEL`/`QA_RADSAT` en Landsat, `SCL` en Sentinel-2, `QC_250m` en MODIS) para descartar nubes, sombras, nieve y píxeles saturados, además de listas de escenas excluidas manualmente por contaminación de nubes residual detectada por inspección visual. Los scripts de Landsat y Sentinel-2 son incrementales: si el CSV de salida ya existe, solo descargan y agregan las fechas faltantes del año en curso.
 
+Por su parte, **`trapiche_era5_download.py`** descarga desde Google Earth Engine la colección mensual **`ECMWF/ERA5_LAND/MONTHLY_AGGR`** (julio 1985 – junio 2026) para el sitio de estudio y un buffer de cuenca de 15 km, convirtiendo precipitación acumulada (`total_precipitation_sum`, m → mm) y temperatura del aire a 2 m (`temperature_2m`, K → °C), y genera tanto la serie mensual (`datos_trapiche_era5_monthly.csv`) como la agregación por año hidrológico julio–junio (`datos_trapiche_era5_hydroyear.csv`).
+
 ## Scripts de figuras (`scripts/2-graphics scripts/`)
 
 `figure_style.R` centraliza la paleta de colores por tratamiento y el tema gráfico (`ggplot2`/`patchwork`) para que todas las figuras del manuscrito sean visualmente consistentes.
@@ -92,6 +104,7 @@ Cada script aplica una máscara de calidad específica del sensor (`QA_PIXEL`/`Q
 - **`generate_landsat_figures.R`** → `Figure2.png`, `Figure3.png`, `Figure4.png`. Agrega los datos Landsat a medianas espaciales mensuales y luego a promedios por año hidrológico/fenológico (julio–junio), y grafica la trayectoria 1986–2026 de NDVI, EVI, LSWI y LST por tratamiento, marcando el año de construcción de la represa (1995) y el inicio de la restauración (2020).
 - **`generate_sentinel_figures.R`** → `Figure5.png` / `Figure5_controles_separados.png` (series mensuales 2020–2026 de NDVI/EVI/LSWI) y `Figure6_a.png` / `Figure6_b.png` (medias marginales estimadas del modelo mixto, con intervalos de confianza al 95 % y letras de significancia de Tukey, comparando época húmeda vs. seca).
 - **`generate_figure7_kde.py`** → `Figure7.png`. Compara la densidad fenológica bidimensional (día del año vs. NDVI) del sector restaurado durante el período de referencia pre-represa (1986–1993) contra las observaciones de 2000–2004 y 2020–2026, resaltando en verde las observaciones más recientes (julio 2025–julio 2026).
+- **`era5_analysis_and_figures.py`** → `FigureA4_ERA5_precipitation.png` (y tablas derivadas `merged_landsat_era5_hydroyear.csv`, `era5_ndvi_correlations.csv`). Analiza tendencias de precipitación y temperatura del aire a 2 m de ERA5-Land (1986–2026), calcula correlaciones con los índices Landsat y genera una figura de 3 paneles comparando precipitación anual, temperatura media anual y EVI anual por tratamiento.
 - **`generate_restoration_photos_figure.R`** → `Figure_Restauracion_Paneles.png` / `FigureS3.png`. Panel de 4 fotografías de campo que documentan el proceso físico de restauración (pozos de plantado, plantación 2022, consolidación 2023 y 2025).
 - **`ndvi_vega_trapiche.py`** → mapas NDVI comparativos (2×2) por período (1986–1993, 2000–2004, 2005–2009, 2025–2026) a partir de composiciones medianas de Landsat, para visualizar espacialmente el patrón de degradación/recuperación.
 
@@ -120,6 +133,7 @@ El índice NDWI se excluye deliberadamente de este análisis por estar orientado
 | `Figure7.png` | Densidad fenológica NDVI de referencia (1986–1993) vs. períodos 2000–2004 y 2020–2026 |
 | `FigureS2.png` | Material suplementario |
 | `FigureS3.png` (= `Figure_Restauracion_Paneles.png`) | Panel fotográfico del proceso de restauración |
+| `FigureA4_ERA5_precipitation.png` | Precipitación anual, temperatura media del aire a 2 m (ERA5-Land) y EVI anual Landsat por tratamiento, 1986–2026 |
 
 <p align="center">
   <img src="figures/Figure2.png" width="700" alt="NDVI y EVI anuales por tratamiento 1986-2026">
@@ -164,6 +178,7 @@ earthengine authenticate   # solo la primera vez
 python "scripts/1-download scripts/trapiche_landsat_download.py"
 python "scripts/1-download scripts/trapiche_sentinel_download.py"
 python "scripts/1-download scripts/trapiche_modis_download.py"
+python "scripts/1-download scripts/trapiche_era5_download.py"
 ```
 
 Requiere acceso a los assets de Earth Engine `users/CarlosNavarro/Trapiche_NDVI/*` (pixeles de muestreo geolocalizados por sector de tratamiento).
@@ -183,6 +198,7 @@ Rscript "scripts/2-graphics scripts/generate_restoration_photos_figure.R"
 ```bash
 pip install pandas numpy matplotlib seaborn scipy
 python "scripts/2-graphics scripts/generate_figure7_kde.py"
+python "scripts/2-graphics scripts/era5_analysis_and_figures.py"
 ```
 
 **Análisis estadístico (R):**
@@ -213,6 +229,7 @@ Rscript "scripts/3-analysis scripts/Analisis Sentinel 2.R"
 - Kuznetsova, A., Brockhoff, P. B., & Christensen, R. H. B. (2017). lmerTest package: Tests in linear mixed effects models. *Journal of Statistical Software*, 82(13), 1–26. https://doi.org/10.18637/jss.v082.i13
 - Lenth, R. V. (2016). Least-squares means: The R package lsmeans. *Journal of Statistical Software*, 69(1), 1–33. https://doi.org/10.18637/jss.v069.i01 (base del paquete `emmeans`)
 - Gorelick, N., Hancher, M., Dixon, M., Ilyushchenko, S., Thau, D., & Moore, R. (2017). Google Earth Engine: Planetary-scale geospatial analysis for everyone. *Remote Sensing of Environment*, 202, 18–27. https://doi.org/10.1016/j.rse.2017.06.031
+- Muñoz-Sabater, J., Dutra, E., Agustí-Panareda, A., Albergel, C., Arduini, G., Balsamo, G., Boussetta, S., Choulga, M., Harrigan, S., Hersbach, H., Martens, B., Miralles, D. G., Piles, M., Rodríguez-Fernández, N. J., Zsoter, E., Buontempo, C., & Thépaut, J.-N. (2021). ERA5-Land: A state-of-the-art global reanalysis dataset for land applications. *Earth System Science Data*, 13(9), 4349–4383. https://doi.org/10.5194/essd-13-4349-2021
 
 ## Licencia
 

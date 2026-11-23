@@ -143,7 +143,7 @@ def generate_figure() -> None:
     bottom_axis.legend(loc="upper right", frameon=True, fontsize=12)
 
     figure.tight_layout()
-    figure.savefig(OUTPUT_FILE, dpi=300, bbox_inches="tight", facecolor="white")
+    figure.savefig(OUTPUT_FILE, dpi=450, bbox_inches="tight", facecolor="white")
     plt.close(figure)
     print(f"Created {OUTPUT_FILE}")
 

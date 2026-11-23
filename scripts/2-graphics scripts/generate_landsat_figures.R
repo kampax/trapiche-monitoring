@@ -195,7 +195,7 @@ figure2 <- ((ndvi_panels$observed + ndvi_panels$smoothed) /
   theme(plot.tag = element_text(size = 18, face = "bold", family = "serif"))
 
 ggsave(file.path(output_dir, "Figure2.png"), figure2,
-  width = 13.5, height = 10.2, dpi = 320, bg = "white"
+  width = 13.5, height = 10.2, dpi = 450, bg = "white"
 )
 message("Creada: ", file.path(output_dir, "Figure2.png"))
 
@@ -212,7 +212,7 @@ for (item in list(
   output_file <- file.path(output_dir, item$file)
   ggsave(output_file, combined,
     width = 13.5, height = 5.8,
-    dpi = 320, bg = "white"
+    dpi = 450, bg = "white"
   )
   message("Creada: ", output_file)
 }
